@@ -10,6 +10,9 @@ import sys
 
 LINE = "I never sleep, but I stayed up all night figuring out how to say hi."
 
+ENTRY_FILENAME = "entry.txt"
+ENTRY_MODE = 0o644
+
 
 def gate_ok(text):
     """The house gate: UTF-8 text, 1-200 chars, not only whitespace."""
@@ -21,6 +24,10 @@ def gate_ok(text):
         return "length %d outside 1-200" % len(text)
     if not text.strip():
         return "only whitespace"
+    try:
+        text.encode("utf-8")
+    except UnicodeEncodeError:
+        return "not encodable as UTF-8"
     return None
 
 
@@ -33,11 +40,11 @@ def main():
     os.umask(0o022)
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
     os.makedirs(out_dir, exist_ok=True)
-    target = os.path.join(out_dir, "entry.txt")
+    target = os.path.join(out_dir, ENTRY_FILENAME)
 
     with open(target, "w", encoding="utf-8", newline="") as handle:
         handle.write(LINE)
-    os.chmod(target, 0o644)
+    os.chmod(target, ENTRY_MODE)
 
     with open(target, "r", encoding="utf-8", newline="") as handle:
         written = handle.read()
